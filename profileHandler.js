@@ -9,9 +9,7 @@ const getUserProfile = (req, res) => {
 const getProfile = (req, res) => {
     const userId = req.params.id;
     const intUserId = parseInt(userId);
-    if (intUserId === userData._id) {
-        req.session.currentProfile = userData;
-    } else if (intUserId === externalUserData._id) {
+    if (intUserId === externalUserData._id) {
         req.session.currentProfile = externalUserData;
     }
     res.json(req.session.currentProfile);

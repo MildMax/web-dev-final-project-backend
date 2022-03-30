@@ -11,6 +11,7 @@
   "followingCount": 256,
   "profilePicture": "/images/blank-profile-picture.png",
   "isArtist": false,
+  "isAdmin": false,
   "comments": [
     {
       "content-type": "comment",

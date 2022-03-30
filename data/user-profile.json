@@ -10,7 +10,8 @@
   "followerCount": 123,
   "followingCount": 234,
   "profilePicture": "/images/blank-profile-picture.png",
-  "isArtist": true,
+  "isArtist": false,
+  "isAdmin": false,
   "comments": [
     {
       "content-type": "comment",

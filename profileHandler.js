@@ -32,7 +32,7 @@ const putUserProfileData = (req, res) => {
 }
 
 const registerAdmin = (req, res) => {
-    const key = "HOWDY";
+    const key = process.env.REGISTER_KEY;
     const data = req.body;
     const userKey = data.key;
     if (userKey === key) {

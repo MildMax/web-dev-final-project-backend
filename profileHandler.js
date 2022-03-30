@@ -31,8 +31,20 @@ const putUserProfileData = (req, res) => {
     res.sendStatus(200);
 }
 
+const registerAdmin = (req, res) => {
+    const key = "HOWDY";
+    const data = req.body;
+    const userKey = data.key;
+    if (userKey === key) {
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(400);
+    }
+}
+
 module.exports = (app) => {
     app.get('/profile', getUserProfile);
     app.get('/profile/:id', getProfile);
     app.put('/profile', putUserProfileData);
+    app.post('/profile/register', registerAdmin);
 }

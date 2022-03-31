@@ -1,37 +1,50 @@
 const userData = require('./data/user-profile.json');
 const externalUserData = require('./data/external-profile.json');
 
-let userDataTemp = undefined;
-let currentProfile = {};
+let currUserData = userData;
+let currExternalUserData = externalUserData;
 
-const getUserProfile = (req, res) => {
+const login = (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
     if (!req.session.userData) {
-        req.session.userData = userData;
+        req.session.userData = {
+            _id: currUserData._id,
+            username: currUserData.username
+        }
     }
-    console.log(req.session.userData);
     res.json(req.session.userData);
 }
 
-const getProfile = (req, res) => {
+const getProfileData = (req, res) => {
     const userId = req.params.id;
     const intUserId = parseInt(userId);
-    if (intUserId === externalUserData._id) {
-        currentProfile = externalUserData;
+    if (intUserId === currExternalUserData._id) {
+        res.json(currExternalUserData);
+    } else if (intUserId === currUserData._id) {
+        res.json(currUserData);
+    } else {
+        res.json({});
     }
-    res.json(currentProfile);
 }
 
-const putUserProfileData = (req, res) => {
-    const newProfileData = req.body;
-    const oldData = req.session.userData;
-    console.log(oldData);
-    req.session.userData = {
-        ...oldData,
-        ...newProfileData
+const putProfileData = (req, res) => {
+    const userId = req.params.id;
+    const intUserId = parseInt(userId);
+    const newData = req.body;
+    if (intUserId === currExternalUserData._id) {
+        const oldData = currExternalUserData;
+        currExternalUserData = {
+            ...oldData,
+            ...newData
+        }
+    } else if (intUserId === currUserData._id) {
+        const oldData = currUserData;
+        currUserData = {
+            ...oldData,
+            ...newData
+        }
     }
-
-    console.log(req.session.userData);
-
     res.sendStatus(200);
 }
 
@@ -47,8 +60,8 @@ const registerAdmin = (req, res) => {
 }
 
 module.exports = (app) => {
-    app.get('/profile', getUserProfile);
-    app.get('/profile/:id', getProfile);
-    app.put('/profile', putUserProfileData);
+    app.post('/login', login);
+    app.get('/profile/:id', getProfileData);
+    app.put('/profile/:id', putProfileData);
     app.post('/profile/register', registerAdmin);
 }

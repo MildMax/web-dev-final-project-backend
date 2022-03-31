@@ -5,10 +5,11 @@ let userDataTemp = undefined;
 let currentProfile = {};
 
 const getUserProfile = (req, res) => {
-    if (userDataTemp === undefined) {
-        userDataTemp = userData;
+    if (!req.session.userData) {
+        req.session.userData = userData;
     }
-    res.json(userDataTemp);
+    console.log(req.session.userData);
+    res.json(req.session.userData);
 }
 
 const getProfile = (req, res) => {
@@ -22,11 +23,14 @@ const getProfile = (req, res) => {
 
 const putUserProfileData = (req, res) => {
     const newProfileData = req.body;
-    const oldData = userDataTemp;
-    userDataTemp = {
+    const oldData = req.session.userData;
+    console.log(oldData);
+    req.session.userData = {
         ...oldData,
         ...newProfileData
     }
+
+    console.log(req.session.userData);
 
     res.sendStatus(200);
 }

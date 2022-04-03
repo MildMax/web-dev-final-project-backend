@@ -32,6 +32,7 @@ const putProfileData = (req, res) => {
     const userId = req.params.id;
     const intUserId = parseInt(userId);
     const newData = req.body;
+    console.log(newData)
     if (intUserId === currExternalUserData._id) {
         const oldData = currExternalUserData;
         currExternalUserData = {
@@ -60,8 +61,8 @@ const registerAdmin = (req, res) => {
 }
 
 module.exports = (app) => {
-    app.post('/login', login);
+    app.post('/profile/login', login);
     app.get('/profile/:id', getProfileData);
     app.put('/profile/:id', putProfileData);
-    app.post('/profile/register', registerAdmin);
+    app.post('/profile/admin', registerAdmin);
 }

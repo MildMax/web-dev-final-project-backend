@@ -63,6 +63,7 @@ const login = (req, res) => {
 const logout = (req, res) => {
     req.session.userData = undefined;
     console.log("logging out")
+    console.log(req.session.userData)
     res.sendStatus(200);
 }
 

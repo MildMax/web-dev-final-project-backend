@@ -1,5 +1,5 @@
 {
-  "_id": 124,
+  "_id": "124",
   "username": "otherUser",
   "name": "Jane Doe",
   "dob": "1995-06-17",
@@ -9,6 +9,7 @@
   "bio": "This is jane doe's sample profile",
   "followerCount": 125,
   "followingCount": 256,
+  "password": 123,
   "profilePicture": "/images/blank-profile-picture.png",
   "isArtist": false,
   "isAdmin": false,

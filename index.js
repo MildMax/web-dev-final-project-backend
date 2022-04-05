@@ -17,6 +17,6 @@ app.use(session({
     cookie: { secure: false }
 }))
 
-require('./profileHandler')(app);
+require('./controllers/profile-controller')(app);
 
 app.listen(4000);

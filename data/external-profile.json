@@ -9,7 +9,7 @@
   "bio": "This is jane doe's sample profile",
   "followerCount": 125,
   "followingCount": 256,
-  "password": 123,
+  "password": "123",
   "profilePicture": "/images/blank-profile-picture.png",
   "isArtist": false,
   "isAdmin": false,

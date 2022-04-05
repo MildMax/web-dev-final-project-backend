@@ -7,7 +7,7 @@
   "website": "example.com",
   "joined": "2022-03-18",
   "bio": "This is a sample bio",
-  "password": 123,
+  "password": "123",
   "followerCount": 123,
   "followingCount": 234,
   "profilePicture": "/images/blank-profile-picture.png",

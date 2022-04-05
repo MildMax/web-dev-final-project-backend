@@ -42,23 +42,28 @@ const createUser = (req, res) => {
 }
 
 const login = (req, res) => {
-    const username = req.body.username;
+    const email = req.body.email;
     const password = req.body.password;
 
-    const user = users.filter(u => username === u.username && password === u.password)
+    const user = users.find(u => email === u.email && password === u.password)
 
-    if (!user) {
-        res.sendStatus(404);
+    if (!user || !user._id) {
+        res.sendStatus(403);
+        return;
     }
 
-    const userData = {
+    req.session.userData = {
         _id: user._id,
         username: user.username
     }
 
-    req.session.userData = userData
+    res.sendStatus(200);
+}
 
-    res.json(req.session.userData);
+const logout = (req, res) => {
+    req.session.userData = undefined;
+    console.log("logging out")
+    res.sendStatus(200);
 }
 
 const getCurrentUser = (req, res) => {
@@ -76,14 +81,11 @@ const putProfileData = (req, res) => {
     const userId = req.params.id;
     const newData = req.body;
     let currUser = users.find(u => u._id === userId);
-    console.log(currUser)
     currUser = {
         ...currUser,
         ...newData
     }
     users = users.map(u => u._id === currUser._id ? currUser : u);
-
-    console.log(users)
 
     res.sendStatus(200);
 }
@@ -102,6 +104,7 @@ const registerAdmin = (req, res) => {
 module.exports = (app) => {
     app.post('/profile', createUser);
     app.post('/profile/login', login);
+    app.post('/profile/logout', logout)
     app.get('/profile', getCurrentUser);
     app.get('/profile/:id', getProfileData);
     app.put('/profile/:id', putProfileData);

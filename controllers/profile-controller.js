@@ -1,60 +1,56 @@
-const userData = require('../data/user-profile.json');
-const externalUserData = require('../data/external-profile.json');
+import {getToday} from "../utils/date-format.js";
+import * as profileDao from "../database/profile/profile-dao.js";
+import * as followDao from "../database/follow/follow-dao.js";
+import * as commentDao from "../database/comment/comment-dao.js";
+import * as likeDao from "../database/like/like-dao.js";
 
-let currUserData = userData;
-let currExternalUserData = externalUserData;
 
-let users = [
-    currUserData,
-    currExternalUserData
-]
-
-const createUser = (req, res) => {
+const createUser = async (req, res) => {
     const createData = req.body;
+
+    const checkResult = await profileDao.getProfileByEmail(createData.email);
+
+    if (checkResult !== null) {
+        res.sendStatus(400);
+    }
+
     const newUserData = {
-        _id: (new Date()).getTime() + '',
         username: createData.username,
         name: createData.name,
         dob: createData.dob,
         email: createData.email,
         website: "",
-        joined: "2022-03-18",
+        joined: getToday(),
         bio: "",
         password: createData.password,
-        followerCount: 0,
-        followingCount: 0,
-        profilePicture: "/images/blank-profile-picture.png",
+        profilePicture: "",
         isArtist: false,
-        isAdmin: false,
-        comments: [],
-        music: [],
-        likes: []
+        isAdmin: false
     }
-    users.push(newUserData);
+
+    await profileDao.createProfile(newUserData);
+    const profile = await profileDao.getProfileByEmail(createData.email);
 
     req.session.userData = {
-        _id: newUserData._id,
-        username: newUserData.username
+        _id: profile._id
     }
 
     res.sendStatus(200);
-
 }
 
-const login = (req, res) => {
+const login = async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    const user = users.find(u => email === u.email && password === u.password)
+    const user = await profileDao.getProfileByCredentials(email, password);
 
-    if (!user || !user._id) {
+    if (user === null) {
         res.sendStatus(403);
         return;
     }
 
     req.session.userData = {
         _id: user._id,
-        username: user.username
     }
 
     res.sendStatus(200);
@@ -62,31 +58,34 @@ const login = (req, res) => {
 
 const logout = (req, res) => {
     req.session.userData = undefined;
-    console.log("logging out")
-    console.log(req.session.userData)
     res.sendStatus(200);
 }
 
 const getCurrentUser = (req, res) => {
-    console.log(req.session.userData)
     res.json(req.session.userData);
 }
 
-const getProfileData = (req, res) => {
+const getProfileData = async (req, res) => {
     const userId = req.params.id;
-    const currUser = users.find(u => u._id === userId);
-    res.json(currUser);
+    const currUser = await profileDao.getProfileById(userId);
+    const followers = await followDao.getFollowers(userId);
+    const following = await followDao.getFollowing(userId);
+    const comments = await commentDao.getCommentsByUser(userId);
+    const likes = await likeDao.getLikesByUser(userId);
+    const userData = {
+        ...(currUser._doc),
+        followerCount: followers.length,
+        followingCount: following.length,
+        comments: comments,
+        likes: likes
+    }
+    res.json(userData);
 }
 
-const putProfileData = (req, res) => {
+const putProfileData = async (req, res) => {
     const userId = req.params.id;
     const newData = req.body;
-    let currUser = users.find(u => u._id === userId);
-    currUser = {
-        ...currUser,
-        ...newData
-    }
-    users = users.map(u => u._id === currUser._id ? currUser : u);
+    await profileDao.updateProfile(userId, newData);
 
     res.sendStatus(200);
 }
@@ -102,7 +101,7 @@ const registerAdmin = (req, res) => {
     }
 }
 
-module.exports = (app) => {
+const profileController = (app) => {
     app.post('/profile', createUser);
     app.post('/profile/login', login);
     app.post('/profile/logout', logout)
@@ -111,3 +110,5 @@ module.exports = (app) => {
     app.put('/profile/:id', putProfileData);
     app.post('/profile/admin', registerAdmin);
 }
+
+export default profileController;

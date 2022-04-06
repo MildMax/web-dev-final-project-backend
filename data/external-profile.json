@@ -7,8 +7,12 @@
   "website": "janesexample.com",
   "joined": "2022-04-21",
   "bio": "This is jane doe's sample profile",
-  "followerCount": 125,
-  "followingCount": 256,
+  "followers": [
+    "123"
+  ],
+  "following": [
+    "123"
+  ],
   "password": "123",
   "profilePicture": "/images/blank-profile-picture.png",
   "isArtist": false,

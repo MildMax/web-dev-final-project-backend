@@ -74,8 +74,8 @@ const getProfileData = async (req, res) => {
     const likes = await likeDao.getLikesByUser(userId);
     const userData = {
         ...(currUser._doc),
-        followerCount: followers.length,
-        followingCount: following.length,
+        followers: followers,
+        following: following,
         comments: comments,
         likes: likes
     }

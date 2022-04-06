@@ -32,7 +32,8 @@ const createUser = async (req, res) => {
     const profile = await profileDao.getProfileByEmail(createData.email);
 
     req.session.userData = {
-        _id: profile._id
+        _id: profile._id,
+        username: profile.username
     }
 
     res.sendStatus(200);
@@ -42,15 +43,16 @@ const login = async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    const user = await profileDao.getProfileByCredentials(email, password);
+    const profile = await profileDao.getProfileByCredentials(email, password);
 
-    if (user === null) {
+    if (profile === null) {
         res.sendStatus(403);
         return;
     }
 
     req.session.userData = {
-        _id: user._id,
+        _id: profile._id,
+        username: profile.username
     }
 
     res.sendStatus(200);

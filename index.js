@@ -1,6 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const session = require('express-session');
+import express from "express";
+import cors from "cors";
+import session from "express-session";
+import mongoose from "mongoose";
+
+import profileController from "./controllers/profile-controller.js";
+import followController from "./controllers/follow-controller.js";
+
+mongoose.connect('mongodb://localhost:27017/webdev');
 
 const app = express();
 app.use(cors({
@@ -17,6 +23,7 @@ app.use(session({
     cookie: { secure: false }
 }))
 
-require('./controllers/profile-controller')(app);
+profileController(app);
+followController(app);
 
 app.listen(4000);

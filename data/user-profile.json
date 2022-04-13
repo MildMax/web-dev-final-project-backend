@@ -8,8 +8,12 @@
   "joined": "2022-03-18",
   "bio": "This is a sample bio",
   "password": "123",
-  "followerCount": 123,
-  "followingCount": 234,
+  "followers": [
+    "124"
+  ],
+  "following": [
+    "124"
+  ],
   "profilePicture": "/images/blank-profile-picture.png",
   "isArtist": false,
   "isAdmin": false,

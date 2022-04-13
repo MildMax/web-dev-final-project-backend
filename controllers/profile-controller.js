@@ -24,7 +24,8 @@ const createUser = async (req, res) => {
         password: createData.password,
         profilePicture: "",
         isArtist: false,
-        isAdmin: false
+        artistId: "",
+        isAdmin: false,
     }
 
     await profileDao.createProfile(newUserData);

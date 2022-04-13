@@ -4,7 +4,6 @@ import * as followDao from "../database/follow/follow-dao.js";
 import * as commentDao from "../database/comment/comment-dao.js";
 import * as likeDao from "../database/like/like-dao.js";
 
-
 const createUser = async (req, res) => {
     const createData = req.body;
 
@@ -74,10 +73,33 @@ const getProfileData = async (req, res) => {
     const following = await followDao.getFollowing(userId);
     const comments = await commentDao.getCommentsByUser(userId);
     const likes = await likeDao.getLikesByUser(userId);
+
+    const followerList = [];
+
+    for (const follower of followers) {
+        const followerProfile = await profileDao.getProfileById(follower.follower_id);
+        followerList.push({
+            _id: follower.follower_id,
+            username: followerProfile.username,
+            profilePicture: followerProfile.profilePicture
+        })
+    }
+
+    const followingList = [];
+
+    for (const follow of following) {
+        const followingProfile = await profileDao.getProfileById(follow.followee_id);
+        followingList.push({
+            _id: follow.followee_id,
+            username: followingProfile.username,
+            profilePicture: followingProfile.profilePicture
+        })
+    }
+
     const userData = {
         ...(currUser._doc),
-        followers: followers,
-        following: following,
+        followers: followerList,
+        following: followingList,
         comments: comments,
         likes: likes
     }

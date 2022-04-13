@@ -8,6 +8,7 @@ import followController from "./controllers/follow-controller.js";
 import commentController from "./controllers/comment-controller.js";
 import likeController from "./controllers/like-controller.js";
 import postController from "./controllers/post-controller.js";
+import contentController from "./controllers/content-controller.js";
 
 mongoose.connect('mongodb://localhost:27017/webdev');
 
@@ -31,5 +32,6 @@ followController(app);
 commentController(app);
 likeController(app);
 postController(app);
+contentController(app);
 
 app.listen(4000);

@@ -2,7 +2,10 @@ const createPost = (req, res) => {
     const postBody = req.body;
     const type = postBody.type;
 
-    // insert into appropriate dao here
+    // check to see if post with given id already exists
+
+
+    // if not, insert into appropriate dao here
 
     res.sendStatus(200);
 }

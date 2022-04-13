@@ -2,6 +2,8 @@ const createPost = (req, res) => {
     const postBody = req.body;
     const type = postBody.type;
 
+    console.log(postBody)
+
     // check to see if post with given id already exists
 
 
@@ -21,8 +23,8 @@ const getPost = (req, res) => {
 }
 
 const postController = (app) => {
-    app.post('/post');
-    app.get('/post/:post_id');
+    app.post('/post', createPost);
+    app.get('/post/:post_id', getPost);
 }
 
 export default postController;

@@ -99,6 +99,8 @@ const getProfileData = async (req, res) => {
         })
     }
 
+    // if user is artist, retrieve artist name to be displayed in profile
+
     const userData = {
         ...(currUser._doc),
         followers: followerList,

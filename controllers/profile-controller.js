@@ -32,7 +32,8 @@ const createUser = async (req, res) => {
 
     req.session.userData = {
         _id: profile._id,
-        username: profile.username
+        username: profile.username,
+        isAdmin: profile.isAdmin
     }
 
     res.sendStatus(200);
@@ -51,7 +52,8 @@ const login = async (req, res) => {
 
     req.session.userData = {
         _id: profile._id,
-        username: profile.username
+        username: profile.username,
+        isAdmin: profile.isAdmin
     }
 
     res.sendStatus(200);

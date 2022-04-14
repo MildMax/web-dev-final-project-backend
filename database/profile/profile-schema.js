@@ -11,7 +11,8 @@ const schema = mongoose.Schema({
     password: String,
     profilePicture: String,
     isArtist: Boolean,
-    isAdmin: Boolean
+    isAdmin: Boolean,
+    artistId: String
 },{ collection: "profiles"})
 
 export default schema;

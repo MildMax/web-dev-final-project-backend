@@ -24,7 +24,8 @@ const createUser = async (req, res) => {
         password: createData.password,
         profilePicture: "",
         isArtist: false,
-        isAdmin: false
+        artistId: "",
+        isAdmin: false,
     }
 
     await profileDao.createProfile(newUserData);
@@ -32,7 +33,8 @@ const createUser = async (req, res) => {
 
     req.session.userData = {
         _id: profile._id,
-        username: profile.username
+        username: profile.username,
+        isAdmin: profile.isAdmin
     }
 
     res.sendStatus(200);
@@ -51,7 +53,8 @@ const login = async (req, res) => {
 
     req.session.userData = {
         _id: profile._id,
-        username: profile.username
+        username: profile.username,
+        isAdmin: profile.isAdmin
     }
 
     res.sendStatus(200);
@@ -103,6 +106,12 @@ const getProfileData = async (req, res) => {
         comments: comments,
         likes: likes
     }
+
+    // if user is artist, retrieve artist name to be displayed in profile
+    if (userData.isArtist) {
+        userData.music = []
+    }
+
     res.json(userData);
 }
 

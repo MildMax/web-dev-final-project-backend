@@ -2,6 +2,8 @@ const createPost = (req, res) => {
     const postBody = req.body;
     const type = postBody.type;
 
+    console.log(postBody);
+
     // check to see if post with given id already exists
 
 

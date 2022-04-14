@@ -21,9 +21,19 @@ const unlikeContent = (req, res) => {
 
 }
 
+const getLikes = (req, res) => {
+    const post_id = req.params.post_id;
+
+    // find likes for the post
+    const likes = [];
+
+    res.json({likes});
+}
+
 const likeController = (app) => {
-    app.post('/comment/like', likeContent);
-    app.delete('/comment/like/:like_id', unlikeContent);
+    app.post('/content/like', likeContent);
+    app.delete('/content/like/:like_id', unlikeContent);
+    app.get('/content/like/:post_id', getLikes)
 }
 
 export default likeController;

@@ -14,6 +14,7 @@ const createPost = (req, res) => {
 
 const getPost = (req, res) => {
 
+    const post_type = req.params.type;
     const post_id = req.params.post_id;
 
     // get post here using id
@@ -24,7 +25,7 @@ const getPost = (req, res) => {
 
 const postController = (app) => {
     app.post('/post', createPost);
-    app.get('/post/:post_id', getPost);
+    app.get('/post/:type/:post_id', getPost);
 }
 
 export default postController;

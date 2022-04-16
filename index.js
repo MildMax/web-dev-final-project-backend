@@ -10,21 +10,27 @@ import likeController from "./controllers/like-controller.js";
 import postController from "./controllers/post-controller.js";
 import contentController from "./controllers/content-controller.js";
 
-mongoose.connect('mongodb://127.0.0.1:27017/webdev');
+const database = process.env.DATABASE_URL || 'mongodb://127.0.0.1:27017/webdev';
+mongoose.connect(database);
+
 
 const app = express();
 app.use(cors({
     credentials: true,
-    origin: "http://localhost:3000" // configure from env vars
+    origin: process.env.ORIGIN_URL || "http://localhost:3000"
 }));
 app.use(express.json());
 
-// app.set('trust proxy', 1) // trust first proxy
+const env = process.env.PRODUCTION ? true : false;
+
+if (env) {
+    app.set('trust proxy', 1)
+} // trust first proxy
 app.use(session({
-    secret: 'keyboard cat',
+    secret: process.env.SESSION_SECRET || 'keyboard cat',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }
+    cookie: { secure: env }
 }))
 
 profileController(app);

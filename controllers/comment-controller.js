@@ -30,6 +30,9 @@ const getComments = async (req, res) => {
     // find all comments on a post, sort, send back as an array
     const comments = await commentDao.getCommentsByPost(post_id);
 
+    console.log("SUCCESSFULLY GRABBED COMMENTS");
+    console.log(comments);
+
     res.json({comments})
 }
 

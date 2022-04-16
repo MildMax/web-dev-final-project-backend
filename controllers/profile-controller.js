@@ -7,10 +7,24 @@ import * as likeDao from "../database/like/like-dao.js";
 const createUser = async (req, res) => {
     const createData = req.body;
 
-    const checkResult = await profileDao.getProfileByEmail(createData.email);
+    const existingEmail = await profileDao.getProfileByEmail(createData.email);
 
-    if (checkResult !== null) {
-        res.sendStatus(400);
+    if (existingEmail !== null) {
+        res.json({
+            status: "fail",
+            message: "This email address belongs to another account"
+        });
+        return;
+    }
+
+    const existingUsername = await profileDao.getProfileByUsername(createData.username);
+
+    if (existingUsername !== null) {
+        res.json({
+            status: "fail",
+            message: "This username is already taken"
+        })
+        return;
     }
 
     const newUserData = {
@@ -80,6 +94,7 @@ const getProfileData = async (req, res) => {
     const followerList = [];
 
     for (const follower of followers) {
+        console.log(follower)
         const followerProfile = await profileDao.getProfileById(follower.follower_id);
         followerList.push({
             _id: follower.follower_id,
@@ -118,6 +133,19 @@ const getProfileData = async (req, res) => {
 const putProfileData = async (req, res) => {
     const userId = req.params.id;
     const newData = req.body;
+
+    if (newData.email) {
+        const existingEmail = await profileDao.getProfileByEmail(newData.email);
+
+        if (existingEmail !== null && existingEmail._id === req.session._id) {
+            res.json({
+                status: "fail",
+                message: "This email address belongs to another account"
+            });
+            return;
+        }
+    }
+
     await profileDao.updateProfile(userId, newData);
 
     res.sendStatus(200);

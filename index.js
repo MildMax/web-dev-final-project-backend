@@ -10,7 +10,7 @@ import likeController from "./controllers/like-controller.js";
 import postController from "./controllers/post-controller.js";
 import contentController from "./controllers/content-controller.js";
 
-mongoose.connect('mongodb://localhost:27017/webdev');
+mongoose.connect('mongodb://127.0.0.1:27017/webdev');
 
 const app = express();
 app.use(cors({

@@ -19,9 +19,6 @@ const deleteComment = async (req, res) => {
     // do delete here
     const status = await commentDao.deleteComment(comment_id);
     res.send(status);
-
-
-    res.sendStatus(200);
 }
 
 const getComments = async (req, res) => {

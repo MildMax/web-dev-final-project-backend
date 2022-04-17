@@ -10,7 +10,8 @@ import likeController from "./controllers/like-controller.js";
 import postController from "./controllers/post-controller.js";
 import contentController from "./controllers/content-controller.js";
 
-const database = process.env.DATABASE_URL || 'mongodb://127.0.0.1:27017/webdev';
+//const database = process.env.DATABASE_URL || 'mongodb://127.0.0.1:27017/webdev';
+const database = 'mongodb+srv://nberg:abc123xyz@cluster0.kuydf.mongodb.net/webdev?retryWrites=true&w=majority';
 mongoose.connect(database);
 
 

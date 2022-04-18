@@ -1,31 +1,35 @@
-const likeContent = (req, res) => {
+import * as likeDao from "../database/like/like-dao.js";
+
+const likeContent = async (req, res) => {
     const likeBody = req.body;
     likeBody.timestamp = Date.now();
 
     // put into schema here
+    const like = await likeDao.likeContent(likeBody);
 
     // get new like Id here
-    const like_id = "123";
+    const like_id = like.id;
 
     res.json({like_id});
 
 }
 
-const unlikeContent = (req, res) => {
+const unlikeContent = async (req, res) => {
 
     const like_id = req.params.like_id;
 
     // do delete here
+    const status = await likeDao.unlikeContent(like_id);
 
-    res.sendStatus(200);
+    res.send(status);
 
 }
 
-const getLikes = (req, res) => {
+const getLikes = async (req, res) => {
     const post_id = req.params.post_id;
 
     // find likes for the post
-    const likes = [];
+    const likes = await likeDao.getLikesByPost(post_id);
 
     res.json({likes});
 }

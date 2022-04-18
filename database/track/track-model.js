@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import trackSchema from "./track_schema.js";
+import trackSchema from "./track-schema.js";
 
 const trackModel = mongoose.model("TrackModel", trackSchema);
 

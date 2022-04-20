@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const schema = mongoose.Schema({
     post_id: String,
     image_url: String,
-    external_spotify_link: String,
+    spotify_url: String,
     name: String,
     owner_display_name: String,
     description: String,

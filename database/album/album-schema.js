@@ -8,7 +8,7 @@ const schema = mongoose.Schema({
     album_type: String,
     artist_name: String,
     artist_id: String,
-    release_name: String,
+    release_date: String,
     total_tracks: String
 },{ collection: "album"})
 

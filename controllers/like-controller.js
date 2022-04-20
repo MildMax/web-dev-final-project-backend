@@ -28,9 +28,12 @@ const unlikeContent = async (req, res) => {
 const getLikes = async (req, res) => {
     const post_id = req.params.post_id;
 
+    console.log("attempting to grab likes...");
     // find likes for the post
     const likes = await likeDao.getLikesByPost(post_id);
 
+    console.log("successfully grabbed likes");
+    console.log(likes);
     res.json({likes});
 }
 

@@ -6,6 +6,7 @@ const schema = mongoose.Schema({
     external_spotify_link: String,
     name: String,
     album_name: String,
+    album_id: String,
     release_date: String,
     track_duration: String,
     popularity: String

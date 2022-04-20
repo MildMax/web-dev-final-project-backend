@@ -8,7 +8,7 @@ const likeContent = async (req, res) => {
     const like = await likeDao.likeContent(likeBody);
 
     // get new like Id here
-    const like_id = like.id;
+    const like_id = like._id;
 
     res.json({like_id});
 

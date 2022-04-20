@@ -3,6 +3,12 @@ import * as profileDao from "../database/profile/profile-dao.js";
 import * as followDao from "../database/follow/follow-dao.js";
 import * as commentDao from "../database/comment/comment-dao.js";
 import * as likeDao from "../database/like/like-dao.js";
+import * as albumDao from "../database/album/album-dao.js";
+import * as artistDao from "../database/artist/artist-dao.js";
+import * as playlistDao from "../database/playlist/playlist-dao.js";
+import * as trackDao from "../database/track/track-dao.js";
+import * as showDao from "../database/show/show-dao.js";
+import * as episodeDao from "../database/episode/episode-dao.js";
 
 const createUser = async (req, res) => {
     const createData = req.body;
@@ -91,6 +97,38 @@ const getProfileData = async (req, res) => {
     const comments = await commentDao.getCommentsByUser(userId);
     const likes = await likeDao.getLikesByUser(userId);
 
+    const likedPosts = [];
+    for (const l of likes) {
+        let result = null;
+        switch (l.type) {
+            case "track":
+                result = await trackDao.getPost(l.post_id);
+                break;
+            case "album":
+                result = await albumDao.getPost(l.post_id);
+                break;
+            case "artist":
+                result = await artistDao.getPost(l.post_id);
+                break;
+            case "show":
+                result = await showDao.getPost(l.post_id);
+                break;
+            case "episode":
+                result = await episodeDao.getPost(l.post_id);
+                break;
+            case "playlist":
+                result = await playlistDao.getPost(l.post_id);
+                break;
+        }
+
+        if (result !== null) {
+            likedPosts.push({
+                ...result._doc,
+                type: l.type
+            })
+        }
+    }
+
     const followerList = [];
 
     for (const follower of followers) {
@@ -119,7 +157,7 @@ const getProfileData = async (req, res) => {
         followers: followerList,
         following: followingList,
         comments: comments,
-        likes: likes
+        likes: likedPosts
     }
 
     // if user is artist, retrieve artist name to be displayed in profile

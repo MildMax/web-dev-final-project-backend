@@ -8,7 +8,7 @@ const addComment = async (req, res) => {
     const comment = await commentDao.addComment(commentBody);
 
     // get new comment Id here
-    const comment_id = comment.id;
+    const comment_id = comment._id;
 
     res.json({comment_id});
 

@@ -121,10 +121,17 @@ const getProfileData = async (req, res) => {
                 break;
         }
 
+        const postLikes = await likeDao.getLikesByPost(l.post_id);
+        const likeCount = postLikes.length;
+        const postComments = await commentDao.getCommentsByPost(l.post_id);
+        const commentCount = postComments.length;
+
         if (result !== null) {
             likedPosts.push({
                 ...result._doc,
-                type: l.type
+                type: l.type,
+                likes: likeCount,
+                comments: commentCount
             })
         }
     }

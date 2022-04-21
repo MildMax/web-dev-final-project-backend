@@ -32,6 +32,10 @@ const getAnonymousContent = async (req, res) => {
 
     for (const v of noDuplicates) {
         let result = null;
+        const postLikes = await likeDao.getLikesByPost(v.post_id);
+        const likeCount = postLikes.length;
+        const postComments = await commentDao.getCommentsByPost(v.post_id);
+        const commentCount = postComments.length;
         switch(v.type) {
             case "track":
                 result = await trackDao.getPost(v.post_id);
@@ -52,13 +56,18 @@ const getAnonymousContent = async (req, res) => {
                 result = await playlistDao.getPost(v.post_id);
                 break;
         }
+
         if (result !== null) {
             posts.push({
                 ...result._doc,
-                type: v.type
+                type: v.type,
+                likes: likeCount,
+                comments: commentCount
             });
         }
     }
+
+    console.log(posts)
 
     res.json({posts});
 
@@ -97,6 +106,10 @@ const getNonAnonymousContent = async (req, res) => {
     const posts = [];
     for (const v of noDuplicates) {
         let result = null;
+        const postLikes = await likeDao.getLikesByPost(v.post_id);
+        const likeCount = postLikes.length;
+        const postComments = await commentDao.getCommentsByPost(v.post_id);
+        const commentCount = postComments.length;
         switch(v.type) {
             case "track":
                 result = await trackDao.getPost(v.post_id);
@@ -120,10 +133,14 @@ const getNonAnonymousContent = async (req, res) => {
         if (result !== null) {
             posts.push({
                 ...result._doc,
-                type: v.type
+                type: v.type,
+                likes: likeCount,
+                comments: commentCount
             });
         }
     }
+
+    console.log(posts)
 
     res.json({posts});
 }

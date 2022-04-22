@@ -201,6 +201,7 @@ const registerAdmin = (req, res) => {
     const data = req.body;
     const userKey = data.key;
     if (userKey === key) {
+        req.session.userData.isAdmin = true;
         res.sendStatus(200);
     } else {
         res.sendStatus(400);

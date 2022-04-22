@@ -10,6 +10,96 @@ import * as episodeDao from "../database/episode/episode-dao.js";
 
 const getAnonymousContent = async (req, res) => {
 
+    const posts = await generateAnonymousContent();
+
+    res.json({posts});
+
+}
+
+const getNonAnonymousContent = async (req, res) => {
+
+    const user_id = req.params.user_id;
+
+    const userLikes = await likeDao.getLikesByUser(user_id);
+    const userComments = await commentDao.getCommentsByUser(user_id);
+
+    // use follow dao to find users that the given user is following and select the most recent 5 likes/
+    // comments for that user
+    const following = await followDao.getFollowing(user_id);
+    let likes = [];
+    let comments = [];
+
+    for (const f of following) {
+        const id = f.followee_id;
+        const followerLikes = await likeDao.getLikesByUser(id);
+        const followerComments = await commentDao.getCommentsByUser(id);
+        likes = [...likes, ...followerLikes];
+        comments = [...comments, ...followerComments];
+    }
+
+    const combined = [...userLikes, ...userComments, ...likes, ...comments];
+    const combinedLength = combined.length;
+    const lim = Math.min(20, combinedLength);
+    const combinedTotal = combined.sort((a, b) => b.timestamp - a.timestamp).slice(0, lim);
+    const noDuplicates = Array.from(new Set(combinedTotal.map(a => a.post_id)))
+        .map(id => {
+            return combinedTotal.find(a => a.post_id === id)
+        })
+
+    let posts = [];
+    for (const v of noDuplicates) {
+        let result = null;
+        const postLikes = await likeDao.getLikesByPost(v.post_id);
+        const likeCount = postLikes.length;
+        const postComments = await commentDao.getCommentsByPost(v.post_id);
+        const commentCount = postComments.length;
+        switch(v.type) {
+            case "track":
+                result = await trackDao.getPost(v.post_id);
+                break;
+            case "album":
+                result = await albumDao.getPost(v.post_id);
+                break;
+            case "artist":
+                result = await artistDao.getPost(v.post_id);
+                break;
+            case "show":
+                result = await showDao.getPost(v.post_id);
+                break;
+            case "episode":
+                result = await episodeDao.getPost(v.post_id);
+                break;
+            case "playlist":
+                result = await playlistDao.getPost(v.post_id);
+                break;
+        }
+        if (result !== null) {
+            posts.push({
+                ...result._doc,
+                type: v.type,
+                likes: likeCount,
+                comments: commentCount
+            });
+        }
+    }
+
+    if (posts.length < 20) {
+        const anonPosts = await generateAnonymousContent();
+        posts = [...posts, ...anonPosts];
+        posts = Array.from(new Set(posts.map(a => a.post_id)))
+            .map(id => {
+                return posts.find(a => a.post_id === id)
+            })
+    }
+
+    if (posts.length > 20) {
+        posts = posts.splice(0, 20);
+    }
+
+    res.json({posts});
+}
+
+const generateAnonymousContent = async () => {
     // collect post ids and content type from comment/like daos
     const likes = await likeDao.getLastTwentyLikes();
     const comments = await commentDao.getLastTwentyComments();
@@ -67,82 +157,7 @@ const getAnonymousContent = async (req, res) => {
         }
     }
 
-    console.log(posts)
-
-    res.json({posts});
-
-}
-
-const getNonAnonymousContent = async (req, res) => {
-
-    const user_id = req.params.user_id;
-
-    const userLikes = await likeDao.getLikesByUser(user_id);
-    const userComments = await commentDao.getCommentsByUser(user_id);
-
-    // use follow dao to find users that the given user is following and select the most recent 5 likes/
-    // comments for that user
-    const following = await followDao.getFollowing(user_id);
-    let likes = [];
-    let comments = [];
-
-    for (const f of following) {
-        const id = f.followee_id;
-        const followerLikes = await likeDao.getLikesByUser(id);
-        const followerComments = await commentDao.getCommentsByUser(id);
-        likes = [...likes, ...followerLikes];
-        comments = [...comments, ...followerComments];
-    }
-
-    const combined = [...userLikes, ...userComments, ...likes, ...comments];
-    const combinedLength = combined.length;
-    const lim = Math.min(20, combinedLength);
-    const combinedTotal = combined.sort((a, b) => b.timestamp - a.timestamp).slice(0, lim);
-    const noDuplicates = Array.from(new Set(combinedTotal.map(a => a.post_id)))
-        .map(id => {
-            return combinedTotal.find(a => a.post_id === id)
-        })
-
-    const posts = [];
-    for (const v of noDuplicates) {
-        let result = null;
-        const postLikes = await likeDao.getLikesByPost(v.post_id);
-        const likeCount = postLikes.length;
-        const postComments = await commentDao.getCommentsByPost(v.post_id);
-        const commentCount = postComments.length;
-        switch(v.type) {
-            case "track":
-                result = await trackDao.getPost(v.post_id);
-                break;
-            case "album":
-                result = await albumDao.getPost(v.post_id);
-                break;
-            case "artist":
-                result = await artistDao.getPost(v.post_id);
-                break;
-            case "show":
-                result = await showDao.getPost(v.post_id);
-                break;
-            case "episode":
-                result = await episodeDao.getPost(v.post_id);
-                break;
-            case "playlist":
-                result = await playlistDao.getPost(v.post_id);
-                break;
-        }
-        if (result !== null) {
-            posts.push({
-                ...result._doc,
-                type: v.type,
-                likes: likeCount,
-                comments: commentCount
-            });
-        }
-    }
-
-    console.log(posts)
-
-    res.json({posts});
+    return posts;
 }
 
 const contentController = (app) => {

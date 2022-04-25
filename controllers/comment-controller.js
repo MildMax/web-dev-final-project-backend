@@ -24,12 +24,8 @@ const deleteComment = async (req, res) => {
 const getComments = async (req, res) => {
     const post_id = req.params.post_id;
 
-    console.log("ATTEMPTING TO GRAB COMMENTS...");
     // find all comments on a post, sort, send back as an array
     const comments = await commentDao.getCommentsByPost(post_id);
-    // TODO: sort by timestamp
-    console.log("SUCCESSFULLY GRABBED COMMENTS");
-    console.log(comments);
 
     res.json({comments})
 }

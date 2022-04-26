@@ -139,7 +139,6 @@ const getProfileData = async (req, res) => {
     const followerList = [];
 
     for (const follower of followers) {
-        console.log(follower)
         const followerProfile = await profileDao.getProfileById(follower.follower_id);
         followerList.push({
             _id: follower.follower_id,

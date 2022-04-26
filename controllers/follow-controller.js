@@ -6,8 +6,6 @@ const addFollow = async (req, res) => {
     const follower_id = data.follower_id;
     const followee_id = data.followee_id;
 
-    console.log(follower_id)
-    console.log(followee_id)
 
     await followDao.addFollow(follower_id, followee_id);
 
@@ -16,8 +14,6 @@ const addFollow = async (req, res) => {
 
 const removeFollow = async (req, res) => {
     const data = req.body;
-
-    console.log(data)
 
     const follower_id = data.follower_id;
     const followee_id = data.followee_id;

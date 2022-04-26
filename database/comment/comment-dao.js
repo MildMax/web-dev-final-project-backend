@@ -4,4 +4,4 @@ export const getCommentsByUser = (userId) => commentModel.find({commentor_id: us
 export const getCommentsByPost = (postId) => commentModel.find({post_id: postId});
 export const addComment = (comment) => commentModel.create(comment);
 export const deleteComment = (commentId) => commentModel.deleteOne({_id: commentId});
-export const getLastTwentyComments = () => commentModel.find().sort({timestamp: -1}).limit(20);
+export const getRecentComments = () => commentModel.find().sort({timestamp: -1});

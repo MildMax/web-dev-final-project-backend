@@ -38,16 +38,10 @@ const getNonAnonymousContent = async (req, res) => {
     }
 
     const combined = [...userLikes, ...userComments, ...likes, ...comments];
-    const combinedLength = combined.length;
-    const lim = Math.min(20, combinedLength);
-    const combinedTotal = combined.sort((a, b) => b.timestamp - a.timestamp).slice(0, lim);
-    const noDuplicates = Array.from(new Set(combinedTotal.map(a => a.post_id)))
-        .map(id => {
-            return combinedTotal.find(a => a.post_id === id)
-        })
+    const combinedTotal = combined.sort((a, b) => b.timestamp - a.timestamp)
 
     let posts = [];
-    for (const v of noDuplicates) {
+    for (const v of combinedTotal) {
         let result = null;
         const postLikes = await likeDao.getLikesByPost(v.post_id);
         const likeCount = postLikes.length;
@@ -86,14 +80,15 @@ const getNonAnonymousContent = async (req, res) => {
     if (posts.length < 20) {
         const anonPosts = await generateAnonymousContent();
         posts = [...posts, ...anonPosts];
-        posts = Array.from(new Set(posts.map(a => a.post_id)))
-            .map(id => {
-                return posts.find(a => a.post_id === id)
-            })
     }
 
+    posts = Array.from(new Set(posts.map(a => a.post_id)))
+        .map(id => {
+            return posts.find(a => a.post_id === id)
+        })
+
     if (posts.length > 20) {
-        posts = posts.splice(0, 20);
+        posts = posts.slice(0, 20);
     }
 
     res.json({posts});
@@ -101,26 +96,28 @@ const getNonAnonymousContent = async (req, res) => {
 
 const generateAnonymousContent = async () => {
     // collect post ids and content type from comment/like daos
-    const likes = await likeDao.getLastTwentyLikes();
-    const comments = await commentDao.getLastTwentyComments();
+    let likes = await likeDao.getRecentLikes();
+    let comments = await commentDao.getRecentComments();
 
-    const combined = [
+    let combined = [
         ...likes,
         ...comments
     ]
 
-    const combinedLength = combined.length;
-    const lim = Math.min(20, combinedLength);
-
-    const combinedTotal = combined.sort((a, b) => b.timestamp - a.timestamp).slice(0, lim);
-    const noDuplicates = Array.from(new Set(combinedTotal.map(a => a.post_id)))
+    combined = Array.from(new Set(combined.map(a => a.post_id)))
         .map(id => {
-            return combinedTotal.find(a => a.post_id === id)
+            return combined.find(a => a.post_id === id)
         })
 
-    const posts = [];
+    combined = combined.sort((a, b) => b.timestamp - a.timestamp)
 
-    for (const v of noDuplicates) {
+    if (combined.length > 20) {
+        combined = combined.slice(0, 20);
+    }
+
+    let posts = [];
+
+    for (const v of combined) {
         let result = null;
         const postLikes = await likeDao.getLikesByPost(v.post_id);
         const likeCount = postLikes.length;

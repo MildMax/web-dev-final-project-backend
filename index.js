@@ -19,7 +19,7 @@ app.use(cors({
     credentials: true,
     origin: process.env.ORIGIN_URL || "http://localhost:3000"
 }));
-app.use(express.json({ limit: 100000 }));
+app.use(express.json({ limit: 1000000 }));
 
 const env = process.env.PRODUCTION ? true : false;
 

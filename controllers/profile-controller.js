@@ -98,65 +98,28 @@ const getProfileData = async (req, res) => {
     const likes = await likeDao.getLikesByUser(userId);
 
     const likedPosts = [];
+    const promises = [];
+
     for (const l of likes) {
-        let result = null;
-        switch (l.type) {
-            case "track":
-                result = await trackDao.getPost(l.post_id);
-                break;
-            case "album":
-                result = await albumDao.getPost(l.post_id);
-                break;
-            case "artist":
-                result = await artistDao.getPost(l.post_id);
-                break;
-            case "show":
-                result = await showDao.getPost(l.post_id);
-                break;
-            case "episode":
-                result = await episodeDao.getPost(l.post_id);
-                break;
-            case "playlist":
-                result = await playlistDao.getPost(l.post_id);
-                break;
-        }
-
-        const postLikes = await likeDao.getLikesByPost(l.post_id);
-        const likeCount = postLikes.length;
-        const postComments = await commentDao.getCommentsByPost(l.post_id);
-        const commentCount = postComments.length;
-
-        if (result !== null) {
-            likedPosts.push({
-                ...result._doc,
-                type: l.type,
-                likes: likeCount,
-                comments: commentCount
-            })
-        }
+        const promise = getProfileLikeData(l, likedPosts);
+        promises.push(promise)
     }
 
     const followerList = [];
 
     for (const follower of followers) {
-        const followerProfile = await profileDao.getProfileById(follower.follower_id);
-        followerList.push({
-            _id: follower.follower_id,
-            username: followerProfile.username,
-            profilePicture: followerProfile.profilePicture
-        })
+        const promise = getFollowData(follower, followerList);
+        promises.push(promise);
     }
 
     const followingList = [];
 
     for (const follow of following) {
-        const followingProfile = await profileDao.getProfileById(follow.followee_id);
-        followingList.push({
-            _id: follow.followee_id,
-            username: followingProfile.username,
-            profilePicture: followingProfile.profilePicture
-        })
+        const promise = getFollowData(follow, following);
+        promises.push(promise)
     }
+
+    await Promise.all(promises);
 
     const userData = {
         ...(currUser._doc),
@@ -217,6 +180,53 @@ const getProfilePicture = async (req, res) => {
     } else {
         res.sendStatus(404);
     }
+}
+
+const getProfileLikeData = async (l, likedPosts) => {
+    let result = null;
+    switch (l.type) {
+        case "track":
+            result = await trackDao.getPost(l.post_id);
+            break;
+        case "album":
+            result = await albumDao.getPost(l.post_id);
+            break;
+        case "artist":
+            result = await artistDao.getPost(l.post_id);
+            break;
+        case "show":
+            result = await showDao.getPost(l.post_id);
+            break;
+        case "episode":
+            result = await episodeDao.getPost(l.post_id);
+            break;
+        case "playlist":
+            result = await playlistDao.getPost(l.post_id);
+            break;
+    }
+
+    const postLikes = await likeDao.getLikesByPost(l.post_id);
+    const likeCount = postLikes.length;
+    const postComments = await commentDao.getCommentsByPost(l.post_id);
+    const commentCount = postComments.length;
+
+    if (result !== null) {
+        likedPosts.push({
+            ...result._doc,
+            type: l.type,
+            likes: likeCount,
+            comments: commentCount
+        })
+    }
+}
+
+const getFollowData = async (follow, followList) => {
+    const followerProfile = await profileDao.getProfileById(follow.follower_id);
+    followList.push({
+        _id: follow.follower_id,
+        username: followerProfile.username,
+        profilePicture: followerProfile.profilePicture
+    })
 }
 
 const profileController = (app) => {

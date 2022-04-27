@@ -181,7 +181,7 @@ const putProfileData = async (req, res) => {
     if (newData.email) {
         const existingEmail = await profileDao.getProfileByEmail(newData.email);
 
-        if (existingEmail !== null && existingEmail._id === req.session._id) {
+        if (existingEmail !== null && String(existingEmail._id) !== req.session.userData._id) {
             res.json({
                 status: "fail",
                 message: "This email address belongs to another account"
@@ -207,6 +207,18 @@ const registerAdmin = (req, res) => {
     }
 }
 
+const getProfilePicture = async (req, res) => {
+    const user_id = req.params.id;
+
+    const profile = await profileDao.getProfileById(user_id);
+
+    if (profile !== null) {
+        res.json({profilePicture: profile.profilePicture})
+    } else {
+        res.sendStatus(404);
+    }
+}
+
 const profileController = (app) => {
     app.post('/profile', createUser);
     app.post('/profile/login', login);
@@ -215,6 +227,7 @@ const profileController = (app) => {
     app.get('/profile/:id', getProfileData);
     app.put('/profile/:id', putProfileData);
     app.post('/profile/admin', registerAdmin);
+    app.get('/profile/picture/:id', getProfilePicture);
 }
 
 export default profileController;

@@ -26,56 +26,34 @@ const getNonAnonymousContent = async (req, res) => {
     // use follow dao to find users that the given user is following and select the most recent 5 likes/
     // comments for that user
     const following = await followDao.getFollowing(user_id);
-    let likes = [];
-    let comments = [];
+    const likes = [];
+    const comments = [];
+    const likeCommentPromises = [];
 
     for (const f of following) {
-        const id = f.followee_id;
-        const followerLikes = await likeDao.getLikesByUser(id);
-        const followerComments = await commentDao.getCommentsByUser(id);
-        likes = [...likes, ...followerLikes];
-        comments = [...comments, ...followerComments];
+        const promise = getLikeCommentData(f, likes, comments);
+        likeCommentPromises.push(promise);
     }
+
+    await Promise.all(likeCommentPromises);
 
     const combined = [...userLikes, ...userComments, ...likes, ...comments];
     const combinedTotal = combined.sort((a, b) => b.timestamp - a.timestamp)
 
     let posts = [];
+    const postPromises = [];
+
     for (const v of combinedTotal) {
-        let result = null;
-        const postLikes = await likeDao.getLikesByPost(v.post_id);
-        const likeCount = postLikes.length;
-        const postComments = await commentDao.getCommentsByPost(v.post_id);
-        const commentCount = postComments.length;
-        switch(v.type) {
-            case "track":
-                result = await trackDao.getPost(v.post_id);
-                break;
-            case "album":
-                result = await albumDao.getPost(v.post_id);
-                break;
-            case "artist":
-                result = await artistDao.getPost(v.post_id);
-                break;
-            case "show":
-                result = await showDao.getPost(v.post_id);
-                break;
-            case "episode":
-                result = await episodeDao.getPost(v.post_id);
-                break;
-            case "playlist":
-                result = await playlistDao.getPost(v.post_id);
-                break;
-        }
-        if (result !== null) {
-            posts.push({
-                ...result._doc,
-                type: v.type,
-                likes: likeCount,
-                comments: commentCount
-            });
-        }
+        const promise = getPostData(v, posts);
+        postPromises.push(promise);
     }
+
+    await Promise.all(postPromises);
+
+    posts = Array.from(new Set(posts.map(a => a.post_id)))
+        .map(id => {
+            return posts.find(a => a.post_id === id)
+        })
 
     if (posts.length < 20) {
         const anonPosts = await generateAnonymousContent();
@@ -116,45 +94,62 @@ const generateAnonymousContent = async () => {
     }
 
     let posts = [];
+    const promises = [];
 
     for (const v of combined) {
-        let result = null;
-        const postLikes = await likeDao.getLikesByPost(v.post_id);
-        const likeCount = postLikes.length;
-        const postComments = await commentDao.getCommentsByPost(v.post_id);
-        const commentCount = postComments.length;
-        switch(v.type) {
-            case "track":
-                result = await trackDao.getPost(v.post_id);
-                break;
-            case "album":
-                result = await albumDao.getPost(v.post_id);
-                break;
-            case "artist":
-                result = await artistDao.getPost(v.post_id);
-                break;
-            case "show":
-                result = await showDao.getPost(v.post_id);
-                break;
-            case "episode":
-                result = await episodeDao.getPost(v.post_id);
-                break;
-            case "playlist":
-                result = await playlistDao.getPost(v.post_id);
-                break;
-        }
-
-        if (result !== null) {
-            posts.push({
-                ...result._doc,
-                type: v.type,
-                likes: likeCount,
-                comments: commentCount
-            });
-        }
+        const promise = getPostData(v, posts);
+        promises.push(promise);
     }
 
+    await Promise.all(promises);
     return posts;
+}
+
+const getPostData = async (v, posts) => {
+    let result = null;
+    const postLikes = await likeDao.getLikesByPost(v.post_id);
+    const likeCount = postLikes.length;
+
+    const postComments = await commentDao.getCommentsByPost(v.post_id);
+    const commentCount = postComments.length;
+
+    switch(v.type) {
+        case "track":
+            result = await trackDao.getPost(v.post_id);
+            break;
+        case "album":
+            result = await albumDao.getPost(v.post_id);
+            break;
+        case "artist":
+            result = await artistDao.getPost(v.post_id);
+            break;
+        case "show":
+            result = await showDao.getPost(v.post_id);
+            break;
+        case "episode":
+            result = await episodeDao.getPost(v.post_id);
+            break;
+        case "playlist":
+            result = await playlistDao.getPost(v.post_id);
+            break;
+    }
+
+    if (result !== null) {
+        posts.push({
+            ...result._doc,
+            type: v.type,
+            likes: likeCount,
+            comments: commentCount
+        });
+    }
+}
+
+const getLikeCommentData = async(f, likes, comments) => {
+    const id = f.followee_id;
+    const followerLikes = await likeDao.getLikesByUser(id);
+    const followerComments = await commentDao.getCommentsByUser(id);
+    likes.push(...followerLikes);
+    comments.push(...followerComments)
 }
 
 const contentController = (app) => {

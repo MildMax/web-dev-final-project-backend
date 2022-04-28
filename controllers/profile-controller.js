@@ -108,14 +108,14 @@ const getProfileData = async (req, res) => {
     const followerList = [];
 
     for (const follower of followers) {
-        const promise = getFollowData(follower, followerList);
+        const promise = getFollowData(follower.follower_id, followerList);
         promises.push(promise);
     }
 
     const followingList = [];
 
     for (const follow of following) {
-        const promise = getFollowData(follow, following);
+        const promise = getFollowData(follow.followee_id, followingList);
         promises.push(promise)
     }
 
@@ -220,10 +220,10 @@ const getProfileLikeData = async (l, likedPosts) => {
     }
 }
 
-const getFollowData = async (follow, followList) => {
-    const followerProfile = await profileDao.getProfileById(follow.follower_id);
+const getFollowData = async (id, followList) => {
+    const followerProfile = await profileDao.getProfileById(id);
     followList.push({
-        _id: follow.follower_id,
+        _id: id,
         username: followerProfile.username,
         profilePicture: followerProfile.profilePicture
     })

@@ -10,7 +10,8 @@ import * as episodeDao from "../database/episode/episode-dao.js";
 
 const getAnonymousContent = async (req, res) => {
 
-    const posts = await generateAnonymousContent();
+    const posts = []
+    await generateAnonymousContent(posts, 20);
 
     res.json({posts});
 
@@ -40,25 +41,26 @@ const getNonAnonymousContent = async (req, res) => {
     const combined = [...userLikes, ...userComments, ...likes, ...comments];
     const combinedTotal = combined.sort((a, b) => b.timestamp - a.timestamp)
 
+
+
+    const noDuplicates = Array.from(new Set(combinedTotal.map(a => a.post_id)))
+        .map(id => {
+            return combinedTotal.find(a => a.post_id === id)
+        })
+
     let posts = [];
     const postPromises = [];
 
-    for (const v of combinedTotal) {
+    for (const v of noDuplicates) {
         const promise = getPostData(v, posts);
         postPromises.push(promise);
     }
 
-    await Promise.all(postPromises);
-
-    posts = Array.from(new Set(posts.map(a => a.post_id)))
-        .map(id => {
-            return posts.find(a => a.post_id === id)
-        })
-
-    if (posts.length < 20) {
-        const anonPosts = await generateAnonymousContent();
-        posts = [...posts, ...anonPosts];
+    if (noDuplicates.length < 20) {
+        await generateAnonymousContent(posts, 20 - noDuplicates.length);
     }
+
+    await Promise.all(postPromises);
 
     posts = Array.from(new Set(posts.map(a => a.post_id)))
         .map(id => {
@@ -72,7 +74,7 @@ const getNonAnonymousContent = async (req, res) => {
     res.json({posts});
 }
 
-const generateAnonymousContent = async () => {
+const generateAnonymousContent = async (posts, length) => {
     // collect post ids and content type from comment/like daos
     let likes = await likeDao.getRecentLikes();
     let comments = await commentDao.getRecentComments();
@@ -89,11 +91,10 @@ const generateAnonymousContent = async () => {
 
     combined = combined.sort((a, b) => b.timestamp - a.timestamp)
 
-    if (combined.length > 20) {
-        combined = combined.slice(0, 20);
+    if (combined.length > length) {
+        combined = combined.slice(0, length);
     }
 
-    let posts = [];
     const promises = [];
 
     for (const v of combined) {
@@ -102,7 +103,6 @@ const generateAnonymousContent = async () => {
     }
 
     await Promise.all(promises);
-    return posts;
 }
 
 const getPostData = async (v, posts) => {
